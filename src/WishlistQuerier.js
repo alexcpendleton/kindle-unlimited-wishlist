@@ -6,6 +6,7 @@ class WishlistQuerier {
     for (let i = 0; i < items.length; i++) {
       // then look up on Amazon
       const itemData = items[i];
+      await this.sleep(1000);
       // I assume screen scraping will be involved, and we'll have to throttle
       const queryResult = await this.queryUnlimitedStatus(itemData);
       // as it's processed emit an event if it's determined to be unlimited or not
@@ -28,8 +29,13 @@ class WishlistQuerier {
         name: current.name
       });
     }
+    console.log(json);
     return results;
   }
+  sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   async queryUnlimitedStatus(itemData) {
     const result = { ...itemData, hasKindleUnlimited: false };
     // result.name = `item ${itemData.id}`;

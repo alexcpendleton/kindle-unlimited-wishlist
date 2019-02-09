@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import WishlistQuerier from "./WishlistQuerier";
 
@@ -46,9 +45,9 @@ class App extends Component {
     );
   }
   handleIdChange(event) {
-    console.log("handleIdChange: ", event.value);
+    console.log("handleIdChange: ", event.target.value);
     this.setState({
-      wishlistId: event.value
+      wishlistId: event.target.value
     });
   }
   handleSubmit() {
@@ -64,7 +63,6 @@ class App extends Component {
     });
   }
   onItemQueried(item) {
-    debugger;
     const stuff = item;
     const newItem = new ResultItem({
       ...stuff,
@@ -99,7 +97,7 @@ class Results extends Component {
         <h2>{this.props.header}</h2>
         <ul>
           {this.props.items.map(i => (
-            <li>
+            <li key={i.id}>
               <a href={i.uri}>{i.name}</a>
             </li>
           ))}
