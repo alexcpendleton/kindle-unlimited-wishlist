@@ -7,7 +7,8 @@ class App extends Component {
   constructor(props, context) {
     super(props);
     this.state = {
-      items: [],
+      itemsYes: [],
+      itemsNo: [],
       wishlistId: "11A3M56RENLVO",
       goButtonDisabled: false,
       status: ""
@@ -39,7 +40,8 @@ class App extends Component {
           </button>
         </form>
         <p>{this.state.status}</p>
-        <Results items={this.state.items} />
+        <Results items={this.state.itemsYes} header="Yep! :)" />
+        <Results items={this.state.itemsNo} header="Nope! :(" />
       </div>
     );
   }
@@ -52,7 +54,8 @@ class App extends Component {
   handleSubmit() {
     this.setState({
       goButtonDisabled: true,
-      status: "Searching..."
+      status: "Searching...",
+      items: []
     });
     this.querier.start({
       wishlistId: this.state.wishlistId,
@@ -61,16 +64,22 @@ class App extends Component {
     });
   }
   onItemQueried(item) {
+    debugger;
     const stuff = item;
     const newItem = new ResultItem({
       ...stuff,
-      status: stuff.hasKindleUnlimted ? "Yep" : "Nope",
-      asin: stuff.asin
+      status: stuff.hasKindleUnlimited ? "Yep" : "Nope",
+      id: stuff.id
     });
-    console.log("onItemQueried", newItem);
-    this.setState(state => {
-      return { items: [newItem].concat(state.items) };
-    });
+    if (newItem.hasKindleUnlimited) {
+      this.setState(state => ({
+        itemsYes: [newItem].concat(state.itemsYes)
+      }));
+    } else {
+      this.setState(state => ({
+        itemsNo: [newItem].concat(state.itemsNo)
+      }));
+    }
   }
   onFinished() {
     this.setState({
@@ -84,14 +93,18 @@ class Results extends Component {
     super(props);
   }
   render() {
+    if (!this.props.items || !this.props.items.length) return "";
     return (
-      <ul>
-        {this.props.items.map(i => (
-          <li key={i.asin}>
-            {i.name} - {i.status} - <a href={i.uri}>{i.uri}</a>
-          </li>
-        ))}
-      </ul>
+      <div>
+        <h2>{this.props.header}</h2>
+        <ul>
+          {this.props.items.map(i => (
+            <li>
+              <a href={i.uri}>{i.name}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
     );
   }
 }
@@ -99,7 +112,7 @@ function ResultItem(options) {
   return Object.assign(
     {},
     {
-      asin: 0,
+      id: 0,
       status: "Pending"
     },
     options

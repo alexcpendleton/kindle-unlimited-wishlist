@@ -14,16 +14,35 @@ class WishlistQuerier {
     onFinished();
   }
   async getWishlistItems({ wishlistId }) {
-    const items = [{ asin: 1 }, { asin: 2 }, { asin: 3 }, { asin: 4 }];
-    console.log("getWishlistItems", wishlistId, items);
-    return items;
+    let items = [];
+    const uri = `https://cors-anywhere.herokuapp.com/http://www.justinscarpetti.com/projects/amazon-wish-lister/api/?id=${wishlistId}`;
+    const response = await fetch(uri);
+    const json = await response.json();
+    items = Array.from(json);
+    let results = [];
+    for (let i = 0; i < items.length; i++) {
+      const current = items[i];
+      results.push({
+        uri: current.link,
+        id: current.link,
+        name: current.name
+      });
+    }
+    return results;
   }
   async queryUnlimitedStatus(itemData) {
-    const result = { raw: itemData, hasKindleUnlimited: false };
-    result.name = `item ${itemData.asin}`;
-    result.uri = `https://amazon.com/${itemData.asin}`;
-    result.asin = itemData.asin;
-    if (itemData.asin % 2 === 0) {
+    const result = { ...itemData, hasKindleUnlimited: false };
+    // result.name = `item ${itemData.id}`;
+    // result.uri = `https://amazon.com/${itemData.id}`;
+    // result.id = itemData.id;
+
+    // if (itemData.id % 2 === 0) {
+    //   result.hasKindleUnlimited = true;
+    // }
+    const amazonPageUri = `https://cors-anywhere.herokuapp.com/${result.uri}`;
+    const response = await fetch(amazonPageUri);
+    const body = await response.text();
+    if (body.indexOf(`id="tmm-ku-upsell"`) > -1) {
       result.hasKindleUnlimited = true;
     }
     return result;
