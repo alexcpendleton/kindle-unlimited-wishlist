@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
-import WishlistQuerier from "./WishlistQuerier";
+import WishlistQuerier from "./wishlistQuerier";
 
 class App extends Component {
   constructor(props, context) {
@@ -59,7 +59,8 @@ class App extends Component {
     this.querier.start({
       wishlistId: this.state.wishlistId,
       onItemQueried: this.onItemQueried,
-      onFinished: this.onFinished
+      onFinished: this.onFinished,
+      onWishlistRetrieved: () => {}
     });
   }
   onItemQueried(item) {

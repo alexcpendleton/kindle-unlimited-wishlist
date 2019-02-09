@@ -1,7 +1,15 @@
+import AmazonListScraperFetcher from "./amazonListScraperFetcher";
+
 class WishlistQuerier {
-  async start({ wishlistId, onItemQueried, onFinished }) {
+  constructor() {
+    this.itemFetcher = new AmazonListScraperFetcher();
+  }
+  async start({ wishlistId, onItemQueried, onFinished, onWishlistRetrieved }) {
     // get the wishlist items
     const items = await this.getWishlistItems({ wishlistId });
+
+    onWishlistRetrieved(items);
+
     // loop through each one
     for (let i = 0; i < items.length; i++) {
       // then look up on Amazon
@@ -15,22 +23,7 @@ class WishlistQuerier {
     onFinished();
   }
   async getWishlistItems({ wishlistId }) {
-    let items = [];
-    const uri = `https://cors-anywhere.herokuapp.com/http://www.justinscarpetti.com/projects/amazon-wish-lister/api/?id=${wishlistId}`;
-    const response = await fetch(uri);
-    const json = await response.json();
-    items = Array.from(json);
-    let results = [];
-    for (let i = 0; i < items.length; i++) {
-      const current = items[i];
-      results.push({
-        uri: current.link,
-        id: current.link,
-        name: current.name
-      });
-    }
-    console.log(json);
-    return results;
+    return this.itemFetcher.getWishlistItems({ wishlistId });
   }
   sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
