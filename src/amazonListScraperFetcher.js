@@ -10,7 +10,6 @@ class AmazonListScraperFetcher {
       price: i.price
     }));
     console.log(uri, items, results);
-    debugger;
     return results;
 
     // [

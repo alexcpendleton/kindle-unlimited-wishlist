@@ -8,6 +8,7 @@ class App extends Component {
     this.state = {
       itemsYes: [],
       itemsNo: [],
+      itemsPending: [],
       wishlistId: "11A3M56RENLVO",
       goButtonDisabled: false,
       status: ""
@@ -17,6 +18,7 @@ class App extends Component {
     this.handleSubmit = this.handleSubmit.bind(this);
     this.onItemQueried = this.onItemQueried.bind(this);
     this.onFinished = this.onFinished.bind(this);
+    this.onWishlistRetrieved = this.onWishlistRetrieved.bind(this);
   }
   render() {
     return (
@@ -41,6 +43,7 @@ class App extends Component {
         <p>{this.state.status}</p>
         <Results items={this.state.itemsYes} header="Yep! :)" />
         <Results items={this.state.itemsNo} header="Nope! :(" />
+        <Results items={this.state.itemsPending} header="Pending" />
       </div>
     );
   }
@@ -54,13 +57,15 @@ class App extends Component {
     this.setState({
       goButtonDisabled: true,
       status: "Searching...",
-      items: []
+      itemsYes: [],
+      itemsNo: [],
+      itemsPending: []
     });
     this.querier.start({
       wishlistId: this.state.wishlistId,
       onItemQueried: this.onItemQueried,
       onFinished: this.onFinished,
-      onWishlistRetrieved: () => {}
+      onWishlistRetrieved: this.onWishlistRetrieved
     });
   }
   onItemQueried(item) {
@@ -70,12 +75,15 @@ class App extends Component {
       status: stuff.hasKindleUnlimited ? "Yep" : "Nope",
       id: stuff.id
     });
+
     if (newItem.hasKindleUnlimited) {
       this.setState(state => ({
+        itemsPending: state.itemsPending.filter(i => i.id !== newItem.id),
         itemsYes: [newItem].concat(state.itemsYes)
       }));
     } else {
       this.setState(state => ({
+        itemsPending: state.itemsPending.filter(i => i.id !== newItem.id),
         itemsNo: [newItem].concat(state.itemsNo)
       }));
     }
@@ -85,6 +93,13 @@ class App extends Component {
       goButtonDisabled: false,
       status: "All done!"
     });
+  }
+  onWishlistRetrieved(items) {
+    this.setState(state => ({
+      itemsPending: items,
+      itemsYes: [],
+      itemsNo: []
+    }));
   }
 }
 class Results extends Component {

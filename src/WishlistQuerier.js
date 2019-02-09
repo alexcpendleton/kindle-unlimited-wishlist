@@ -3,6 +3,7 @@ import AmazonListScraperFetcher from "./amazonListScraperFetcher";
 class WishlistQuerier {
   constructor() {
     this.itemFetcher = new AmazonListScraperFetcher();
+    this.sleepMilliseconds = 500;
   }
   async start({ wishlistId, onItemQueried, onFinished, onWishlistRetrieved }) {
     // get the wishlist items
@@ -14,7 +15,7 @@ class WishlistQuerier {
     for (let i = 0; i < items.length; i++) {
       // then look up on Amazon
       const itemData = items[i];
-      await this.sleep(1000);
+      await this.sleep();
       // I assume screen scraping will be involved, and we'll have to throttle
       const queryResult = await this.queryUnlimitedStatus(itemData);
       // as it's processed emit an event if it's determined to be unlimited or not
@@ -25,24 +26,19 @@ class WishlistQuerier {
   async getWishlistItems({ wishlistId }) {
     return this.itemFetcher.getWishlistItems({ wishlistId });
   }
-  sleep(ms) {
+  sleep(ms = this.sleepMilliseconds) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   async queryUnlimitedStatus(itemData) {
     const result = { ...itemData, hasKindleUnlimited: false };
-    // result.name = `item ${itemData.id}`;
-    // result.uri = `https://amazon.com/${itemData.id}`;
-    // result.id = itemData.id;
-
-    // if (itemData.id % 2 === 0) {
-    //   result.hasKindleUnlimited = true;
-    // }
-    const amazonPageUri = `https://cors-anywhere.herokuapp.com/${result.uri}`;
+    const amazonPageUri = `https://oasis-plane.glitch.me/?productUri=${
+      result.uri
+    }`;
     const response = await fetch(amazonPageUri);
-    const body = await response.text();
-    if (body.indexOf(`id="tmm-ku-upsell"`) > -1) {
-      result.hasKindleUnlimited = true;
+    const body = await response.json();
+    if (body) {
+      result.hasKindleUnlimited = body.hasKindleUnlimited;
     }
     return result;
   }
