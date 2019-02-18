@@ -1,13 +1,15 @@
 class AmazonListScraperFetcher {
   async getWishlistItems({ wishlistId }) {
-    const uri = `https://changeable-thyme.glitch.me/?wishlistId=${wishlistId}`;
-    const fetched = await fetch(uri);
-    const items = Array.from(await fetched.json());
+    let items = [];
+    const uri = `https://cors-anywhere.herokuapp.com/http://www.justinscarpetti.com/projects/amazon-wish-lister/api/?id=${wishlistId}`;
+    const response = await fetch(uri);
+    const json = await response.json();
+    items = Array.from(json || []);
     const results = items.map(i => ({
-      id: i.productId,
+      id: i.link,
       uri: i.link,
-      name: i.title,
-      price: i.price
+      name: i.name,
+      price: ""
     }));
     console.log(uri, items, results);
     return results;

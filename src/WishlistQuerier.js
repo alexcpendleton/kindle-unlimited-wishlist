@@ -31,14 +31,22 @@ class WishlistQuerier {
   }
 
   async queryUnlimitedStatus(itemData) {
+    // const result = { ...itemData, hasKindleUnlimited: false };
+    // const amazonPageUri = `https://oasis-plane.glitch.me/?productUri=${
+    //   result.uri
+    // }`;
+    // const response = await fetch(amazonPageUri);
+    // const body = await response.json();
+    // if (body) {
+    //   result.hasKindleUnlimited = body.hasKindleUnlimited;
+    // }
+
     const result = { ...itemData, hasKindleUnlimited: false };
-    const amazonPageUri = `https://oasis-plane.glitch.me/?productUri=${
-      result.uri
-    }`;
+    const amazonPageUri = `https://cors-anywhere.herokuapp.com/${result.uri}`;
     const response = await fetch(amazonPageUri);
-    const body = await response.json();
-    if (body) {
-      result.hasKindleUnlimited = body.hasKindleUnlimited;
+    const body = await response.text();
+    if (body.indexOf(`id="tmm-ku-upsell"`) > -1) {
+      result.hasKindleUnlimited = true;
     }
     return result;
   }
