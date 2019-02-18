@@ -20,6 +20,7 @@ cd kindle-unlimited wishlist
 - And run it:
 
 ```
+yarn install
 yarn start -o
 ```
 
